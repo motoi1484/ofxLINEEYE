@@ -7,7 +7,7 @@
 //
 
 /* <usage>
-
+ 
  ofxLINEEYE lineeye;
  lineeye.setup("192.168.7.180");
 
