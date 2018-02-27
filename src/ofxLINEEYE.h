@@ -44,7 +44,7 @@ public:
     {
         host = _host;
         port = _port;
-        ofLogNotice() << "Open LINEEYE device : " << host << " " << port << endl;
+        ofLogVerbose() << "ofxLINEEYE : Open LINEEYE device : " << host << " " << port;
         
         client.setup(host, port);
         char buf[2] = {(char)0xE0, (char)0x00};
@@ -70,12 +70,12 @@ public:
         
         else{
             
+            lock();
+            
             if(!client.isConnected()){
-                ofLogNotice() << "reconnect LINEEYE" << endl;
+                ofLogVerbose() << "ofxLINEEYE : reconnect LINEEYE";
                 client.setup(host, port);
             }
-            
-            lock();
             
             char buf[] = {(char)0xF0, (char)0x00};
             if(state == true){
@@ -96,7 +96,7 @@ public:
             
             unlock();
             
-            ofSleepMillis(10);
+            //ofSleepMillis(10);
         }
         
     }
@@ -127,17 +127,19 @@ private:
         while(isThreadRunning())
         {
             
+            lock();
             
             if(!client.isConnected()){
-                ofLogNotice() << "reconnect LINEEYE" << endl;
+                ofLogVerbose() << "rofxLINEEYE : econnect LINEEYE";
                 client.setup(host, port);
             }
             
-            lock();
+            
             
             char buf[2];
             //client.sendRawBytes(buf, 1);
 
+            
             
             if(client.receiveRawBytes(buf, 2) > 0){
                 IOState = (unsigned char)buf[1];
@@ -149,7 +151,7 @@ private:
             }
             
             unlock();
-            ofSleepMillis(1);
+            ofSleepMillis(2);
         }
     }
     
