@@ -180,7 +180,7 @@ private:
                     }
                 }
             }
-            ofSleepMillis(10);
+            ofSleepMillis(30);
         }
     }
     
