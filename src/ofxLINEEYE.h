@@ -30,7 +30,9 @@ class ofxLINEEYE : public ofThread
 public:
     ofxLINEEYE()
     {
-        
+        for(int i=0; i<5; i++){
+            inMake[i] = false;
+        }
     }
     
     ~ofxLINEEYE()
@@ -47,6 +49,12 @@ public:
         ofLogVerbose() << "ofxLINEEYE : Open LINEEYE device : " << host << " " << port;
         
         client.setup(host, port);
+        if(client.isConnected()){
+            ofLogVerbose() << "ofxLINEEYE : Success to conenect to " << _host;
+        }
+        else{
+            ofLogError() << "ofxLINEEYE : failed to connect : " << _host;
+        }
         char buf[2] = {(char)0xE0, (char)0x00};
         
         client.sendRawBytes(buf, 1);
@@ -110,6 +118,17 @@ public:
         }
     }
     
+    void makeTrigger(int index, int makeduration){
+        if( 0 <= index && index < 5){
+            if(inMake[index] == false){
+                inMake[index] = true;
+                makeStartTime[index] = ofGetElapsedTimeMillis();
+                makeEndTime[index] = makeStartTime[index] + makeduration;
+                setState(index, true);
+            }
+        }
+    }
+    
 private:
     
     void start()
@@ -130,7 +149,7 @@ private:
             lock();
             
             if(!client.isConnected()){
-                ofLogVerbose() << "rofxLINEEYE : econnect LINEEYE";
+                ofLogVerbose() << "rofxLINEEYE : reconnect LINEEYE";
                 client.setup(host, port);
             }
             
@@ -151,6 +170,16 @@ private:
             }
             
             unlock();
+            
+            for(int i=0; i<5; i++){
+                if(inMake[i] == true){
+                    if(ofGetElapsedTimeMillis() >= makeEndTime[i]){
+                        //make end
+                        inMake[i] = false;
+                        setState(i, false);
+                    }
+                }
+            }
             ofSleepMillis(2);
         }
     }
@@ -160,7 +189,9 @@ private:
     string host;
     int port;
                 
-    
+    unsigned long makeStartTime[5];
+    unsigned long makeEndTime[5];
+    bool inMake[5];
     
     
 };
